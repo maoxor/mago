@@ -688,7 +688,12 @@ where
                 buf.extend_from_slice(content[1..].trim_ascii());
 
                 buf.leak()
-            } else if content.starts_with(b"/**") && !content.starts_with(b"/** ") && content.len() > 5 {
+            } else if content.starts_with(b"/**")
+                && !content.starts_with(b"/** ")
+                // Decorative comments such as `/***** Section *****/` are not docblocks.
+                && !content.starts_with(b"/***")
+                && content.len() > 5
+            {
                 let inner = &content[3..content.len() - 2];
                 let mut buf = Vec::with_capacity_in(content.len() + 1, self.arena);
                 buf.extend_from_slice(b"/** ");
